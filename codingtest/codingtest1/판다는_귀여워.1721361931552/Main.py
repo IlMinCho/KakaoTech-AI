@@ -1,8 +1,47 @@
+# N, M의 행렬로 격자모양에 K개 판다가 있다
+# 목적은 판다로부터 가장 불만족도가 낮은 칸에 들어가는 것이다.
+# 불만족도는 모든 판다와의 거리를 모두 합한 값이다. (멘하튼거리)
+
+# 격자에서 그래프탐색으로 판단할수도 있지만 모든 판다에대한 정확한 점수를 구해야하기에 완전탐색문제임.
+
+# Edge case
+#     모든 칸에 판다가 있고. 단한칸만 들어갈수있음
+#     100x100 크기의 공간에 판다가 한마리만 있음
+
+# 굳이 격자를 선언할 필요는없고, 판다들의 위치를 모두 저장한 변수를 선언하면됨
+# 완전 탐색으로 모든위치에 대하여 판다가 없다면 현재 좌표에대한 모든 판다의 거리를 구한후 불만족도 계산
+# 만약 범위가 100x100을 넘는 구조였다면, 다른알고리즘이나, 이분탐색을 통해 최적화필요함
+
+import sys
+input = sys.stdin.readline
+
+N, M, K = map(int, input().split())
+list_K = list()
+# panda_set = set()
+
+matrix = [[0 for _ in range(M+1)] for _ in range(N+1)]
+for _ in range(K):
+    x, y = map(int, input().split())
+    list_K.append([x, y])
+	# panda_set.add((x, y))
+
+total = 10e9
+# total = float('inf')
+
+for i in range(1, N+1):
+    for j in range(1, M+1):
+        temp_score = 0
+        if [i, j] not in list_K:
+            for panda in list_K:
+                temp_score += ((i - panda[0])**2 + (j - panda[1])**2)
+            total = min(total, temp_score)
+
+print(total)
+
 # N,M,K = map(int, input().split())
 # pandas = []
 # for _ in range(K):
 # 	pandas.append(list(map(int, input().split())))
-
 
 # def cal_non_sat(r,c,panda):
 # 	return (((r-panda[0])*(r-panda[0])) + ((c-panda[1])*(c-panda[1])))
@@ -25,55 +64,3 @@
 # 		ans[index] += list_ans[index]
 
 # print(min(ans))
-	
-
-import sys
-from collections import deque
-input = sys.stdin.readline
-N, M = map(int, input().split())
-X, Y, Z = map(int, input().split())
-
-dy = [-1, 0, 1, 0]
-dx = [0, 1, 0, -1]
-
-def get_distance(a, b, c, d):
-
-    visited = [[float('inf') for _ in range(N)] for _ in range(N)]
-    visited[b][a] = 0
-    q = deque()
-    q.append([b, a])
-
-    while q:
-        cy, cx = q.popleft()
-        for k in range(4):
-            nx = cx + dx[k]
-            ny = cy + dy[k]
-            if 0 <= nx < N and 0 <= ny < N and matrix[ny][nx] != 1:
-                if visited[ny][nx] > visited[cy][cx] + 1:
-                    visited[ny][nx] = visited[cy][cx] + 1
-                    q.append([ny, nx])
-    return visited[d][c]
-
-
-matrix = list()
-for _ in range(N):
-    matrix.append(list(map(int, input().split())))
-ans = 0
-previous_x, previous_y = -1, -1
-for _ in range(M):
-    a, b, c, d = map(int, input().split())
-    a, b, c, d = a-1, b-1, c-1, d-1  # Adjust for 0-based indexing
-    move, take = 0, 0
-
-    if previous_x != -1 and previous_y != -1:
-        move = get_distance(previous_x, previous_y, a, b)
-
-    take = get_distance(a, b, c, d)
-    previous_x, previous_y = c, d
-
-    ans -= (move + take) * Z
-    ans += X
-    if 5 < take:
-        ans += (take - 5) * Y
-
-print(ans)
