@@ -1,16 +1,28 @@
 import sys
 input = sys.stdin.readline
 
-N = int(input().strip())
-cookie = list(map(int, input().strip().split()))
+N, M, K = map(int, input().split())
+
+dp = [[0 for _ in range(max(N, M)+1)] for _ in range(max(N, M)+1)]
+
+for _ in range(K):
+    x, y = map(int, input().split())
+    dp[x-1][y-1] = -1
+# 출발 지점
+dp[0][0] = 1
 
 
-result = sorted((value, idx + 1) for idx, value in enumerate(cookie))
+#경우의 수 찾기
+MOD = int(1e9 + 7)
+for i in range(N):
+    for j in range(M):
+        if dp[i][j] == -1:
+            continue
+        for k in range(1, 7, 1):
+            if i - k >= 0 and dp[i-k][j] != -1:
+                dp[i][j] = (dp[i][j] + dp[i - k][j]) % MOD
+            if j - k >= 0 and dp[i][j-k] != -1:
+                dp[i][j] = (dp[i][j] + dp[i][j - k]) % MOD
 
-# 곱을 최대화 해야하기 때문에 0예외 처리를 해줘야함.
-for i, (value, idx) in enumerate(result):
-    if value - i <= 0:
-        print(' '.join(map(str, range(1, N + 1))))
-        break
-else:
-    print(' '.join(map(str, [idx for value, idx in result])))
+
+print(dp[N-1][M-1])
